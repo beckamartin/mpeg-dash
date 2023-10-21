@@ -38,7 +38,9 @@ class Vimeo:
 
     def __init__(self, url: str) -> None:
         """
-        '__init__' initialize fundamental variables and checks for FFmpeg and status of URL.
+        '__init__' initialize fundamental variables and checks for FFmpeg and status of URL.\n
+        ---\n
+        * url: str, user must provide valid URL for master JSON request.
         """
 
         self._check_ffmpeg()

@@ -1,2 +1,3 @@
-# Ignore enviroment
+# Ignore
 venv/
+__pycache__/
