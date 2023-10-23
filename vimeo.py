@@ -11,17 +11,18 @@ import sys
 import ffmpeg
 import requests
 
+from _utils import Downloads
+
 
 # Folder directories
 dir_temp = "temp/"
 dir_video = "temp/video"
 dir_audio = "temp/audio"
-dir_download = "download/"
+dir_downloads = "downloads/"
 
 
-class Vimeo:
-    """
-    'Vimeo' class is used to download videos from popular video-shraing platfrom vimeo.\n
+class Vimeo(Downloads):
+    """'Vimeo' class is used to download videos from popular video-shraing platfrom vimeo.\n
     ---\n
     Command-Line use:\n
     $ python dash.py <URL>\n
@@ -37,11 +38,11 @@ class Vimeo:
 
 
     def __init__(self, url: str) -> None:
-        """
-        '__init__' initialize fundamental variables and checks for FFmpeg and status of URL.\n
+        """'__init__' initialize fundamental variables and checks for FFmpeg and status of URL.\n
         ---\n
         * url: str, user must provide valid URL for master JSON request.
         """
+        super().__init__()
 
         self._check_ffmpeg()
 
@@ -64,8 +65,7 @@ class Vimeo:
 
 
     def setting(self, resolution: int, name: str=None):
-        """
-        'setting' method MUST be used BEFORE 'download'.\n
+        """'setting' method MUST be used BEFORE 'download'.\n
         Provides necessary variables for download.\n
         ---\n 
         * resolution: int, user must provide int of choosen resolution.\n
@@ -110,8 +110,7 @@ class Vimeo:
 
 
     def download(self):
-        """
-        'download' method MUST be used AFTER 'setting'.\n
+        """'download' method MUST be used AFTER 'setting'.\n
         Downloads video in resolution selected in 'setting'.\n
         Output file can be found in './download/'.
         """
@@ -125,7 +124,7 @@ class Vimeo:
 
         os.makedirs(dir_video, exist_ok=True)
         os.makedirs(dir_audio, exist_ok=True)
-        os.makedirs(dir_download, exist_ok=True)
+        os.makedirs(dir_downloads, exist_ok=True)
 
         # Send segment requests, download and concate binary video + audio
         full_video = b""
@@ -169,7 +168,7 @@ class Vimeo:
         # Merg video + audio files via FFmpeg
         video_in = ffmpeg.input(dir_temp + "video.mp4")
         audio_in = ffmpeg.input(dir_temp + "audio.mp4")
-        stream = ffmpeg.output(video_in, audio_in, dir_download + self.file_name)
+        stream = ffmpeg.output(video_in, audio_in, os.path.relpath(self._path_downloads) + "\\" + self.file_name)
         ffmpeg.run(stream, overwrite_output=True)
 
         # Remove used temporary video + audio data
@@ -179,8 +178,7 @@ class Vimeo:
 
 
     def check_status(self):
-        """
-        'check_status' returns request status code from master URL.\n
+        """'check_status' returns request status code from master URL.\n
         Can be used after creating instance of class object.
         """
 
@@ -189,8 +187,7 @@ class Vimeo:
 
 
     def list_quality(self):
-        """
-        'list_quality' returns a list of all availible video resolutions.\n
+        """'list_quality' returns a list of all availible video resolutions.\n
         Can be used after creating instace of class object.
         """
 
@@ -205,8 +202,7 @@ class Vimeo:
 
 
     def print_data(self, pretty: bool=True):
-        """
-        'print_data' returns JSON response from server.\n
+        """'print_data' returns JSON response from server.\n
         ---\n
         * pretty = True, returns pprint data (default).\n
         * pretty = False, returns print data.\n
@@ -223,8 +219,7 @@ class Vimeo:
 
 
     def dump_json(self):
-        """
-        'dump_json' creates .json file with data response from server.\n
+        """'dump_json' creates .json file with data response from server.\n
         Can be used after creating instance of class object.
         """
 
@@ -252,8 +247,7 @@ class Vimeo:
     
     @master_url.setter
     def set_basics(self, url):
-        """
-        'set_basics' uses re.search to catch master_url, base_url and clip_id.\n
+        """'set_basics' uses re.search to catch master_url, base_url and clip_id.\n
         Also checks if the URL is usable or not.
         """
 
@@ -274,8 +268,7 @@ class Vimeo:
     
     @data.setter
     def set_data(self, url):
-        """
-        'set_data' sends data request to server and looks for JSON response.\n
+        """'set_data' sends data request to server and looks for JSON response.\n
         Also checks if the URL is dead or response is an error.
         """
 
@@ -355,8 +348,7 @@ class Vimeo:
 
     # Private functions
     def _check_ffmpeg(self) -> None:
-        """
-        '_check_ffmpeg' uses subprocess to find if FFmpeg is available in PATH.
+        """'_check_ffmpeg' uses subprocess to find if FFmpeg is available in PATH.
         """
 
         try:
@@ -367,8 +359,7 @@ class Vimeo:
 
 
     def _check_res(self) -> None:
-        """
-        '_check_res' checks if user provided any select_res available for download.
+        """'_check_res' checks if user provided any select_res available for download.
         """
 
         try:
@@ -380,14 +371,12 @@ class Vimeo:
 
 
 def main():
-    """
-    'main' function works only with argv as in a Command-Line Interface (CLI).\n
+    """'main' function works only with argv as in a Command-Line Interface (CLI).\n
     ---\n
     Command-Line use:\n
     $ python dash.py <URL>\n
     $ [360, 720, 1080 ..]\n
     $ Enter resolution: 720\n
-
     """
 
     if len(sys.argv) != 2:
