@@ -1,5 +1,6 @@
 import os
 import sys
+import subprocess
 
 
 class Downloads():
@@ -17,13 +18,13 @@ class Downloads():
         Args:
             e.g. `path="C:\\\\Users\\\\User\\\\Desktop"`.
         """
-        
         if path == None:
             if os.name == "nt":
                 user_env = os.getenv("USERPROFILE")
                 self.path_downloads = os.path.join(user_env, "Downloads")
             else:
                 self.path_downloads = os.getcwd() + "\downloads"
+
         else:
             try:
                 if os.path.exists(path) and os.path.isdir(path):
@@ -52,3 +53,13 @@ class Downloads():
     def path_downloads(self, value):
         if os.path.abspath(value) or os.path.realpath(value):
             self._path_downloads = os.path.relpath(value)
+
+
+def _check_ffmpeg() -> None:
+    """Uses subprocess to find if `FFmpeg` is available in `PATH`.
+    """
+    try:
+        subprocess.run(["ffmpeg", "-version"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
+    except subprocess.CalledProcessError:
+        print("Error: FFmpeg Is Not in the PATH")
+        sys.exit(4)

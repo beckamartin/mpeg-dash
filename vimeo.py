@@ -5,13 +5,12 @@ import os
 import pprint
 import re
 import shutil
-import subprocess
 import sys
 
 import ffmpeg
 import requests
 
-from _utils import Downloads
+from _utils import Downloads, _check_ffmpeg
 
 
 # Folder directories
@@ -43,8 +42,7 @@ class Vimeo(Downloads):
         * url: str, user must provide valid URL for master JSON request.
         """
         super().__init__()
-
-        self._check_ffmpeg()
+        _check_ffmpeg()
 
         self._master_url = None
         self._base_url = None
@@ -347,17 +345,6 @@ class Vimeo(Downloads):
 
 
     # Private functions
-    def _check_ffmpeg(self) -> None:
-        """'_check_ffmpeg' uses subprocess to find if FFmpeg is available in PATH.
-        """
-
-        try:
-            subprocess.run(["ffmpeg", "-version"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
-        except subprocess.CalledProcessError:
-            print("Error: FFmpeg Is Not in the PATH")
-            sys.exit(4)
-
-
     def _check_res(self) -> None:
         """'_check_res' checks if user provided any select_res available for download.
         """
